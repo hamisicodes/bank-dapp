@@ -149,13 +149,15 @@ function App() {
       if (window.ethereum){
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner();
-        const bankContract = new ethers.providers.Web3Provider(contractAddress, contractABI, signer);
+        const bankContract = new ethers.Contract(contractAddress, contractABI, signer);
         let myAddress = await signer.getAddress();
 
-        const txn = await bankContract.withdrawMoney(myAddress, utils.formatEther(inputValue.withdrawalAmount));
+        const txn = await bankContract.withdrawMoney(myAddress, utils.parseEther(inputValue.withdrawalAmount)); //utils.parseEther() function to convert our Eth back into wei for our smart contract.
         console.log("Withdrawing money...");
         await txn.wait()
         console.log("Withrawal Done", txn.hash)
+
+        setInputValue(prevFormData => ({ ...prevFormData, withdrawalAmount: "" }));
 
         customerBalanceHandler()
 
@@ -207,7 +209,7 @@ function App() {
             onChange={handleInputChange} />
             <button
               className="btn-purple"
-              onClick={withdrawMoney}>Deposit Money In ETH</button>
+              onClick={withdrawMoney}>Withdraw Money In ETH</button>
           </form>
           </div>
           <div className="details">
