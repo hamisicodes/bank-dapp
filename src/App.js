@@ -129,6 +129,8 @@ function App() {
         await txn.wait();
         console.log("Depositing money done", txn.hash);
 
+        setInputValue(prevFormData => ({ ...prevFormData, deposit: "" }));
+
         customerBalanceHandler();
       }else{
         console.log("ethereum object not found, set MetaMask");
