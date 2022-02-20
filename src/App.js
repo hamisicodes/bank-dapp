@@ -58,10 +58,13 @@ function App() {
           const signer = provider.getSigner();
           const bankContract = new ethers.Contract(contractAddress, contractABI, signer);
 
-          const txn = bankContract.setbankName(utils.formatBytes32String(inputValue.bankName));
-          console.log("setting ban name...");
+          const txn = await bankContract.setbankName(utils.formatBytes32String(inputValue.bankName));
+          console.log("setting bank name...");
           await txn.wait();
-          console.log("Transaction name changed", txn.hash);
+          console.log("Bank name changed", txn.hash);
+
+          setInputValue(prevFormData => ({ ...prevFormData, bankName: "" }));
+
           await getBankName();
         }else {
           console.log("ethereum object not found, set MetaMask");
@@ -183,46 +186,65 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header">
-        <div className="title">
+        <div className="App__title">
           <h3>Bank Contract Project 💰</h3>
         </div>
-        <div className="transactions">
-          <div className="transactions__depositContainer">
-          <form onSubmit={depositMoney}>
+        <div className="App__transactions">
+          <div className="App__transactions__depositContainer">
+          <form>
             <input 
             type="text"
             name="deposit"
             value={inputValue.deposit}
             onChange={handleInputChange} />
             <button
-              className="btn-purple"
               onClick={depositMoney}>Deposit Money In ETH</button>
           </form>
           </div>
-          <div className="transactions__withdrawContainer">
-          <form onSubmit={withdrawMoney}>
+          <div className="App__transactions__withdrawContainer">
+          <form>
             <input 
             type="text"
             name="withdrawalAmount"
             value={inputValue.withdrawalAmount}
             onChange={handleInputChange} />
             <button
-              className="btn-purple"
               onClick={withdrawMoney}>Withdraw Money In ETH</button>
           </form>
           </div>
-          <div className="details">
+          <div className="App__details">
             {customerBalance && (
               <h2>Customer Balance: {customerBalance}</h2>
             )}
             {bankOwnerAddress && (
               <h3>Bank Owner Address: {bankOwnerAddress}</h3>
             )}
+            {customerAddress && (
+              <h3>Your Wallet address: {customerAddress}</h3>
+            )}
+            {isWalletConnected ? 
+            <h4>Wallet connected: 🔒</h4> : 
+            <h4>Please install and connect your MetaMask Wallet to start using the bank</h4>}
           </div>
-
+          {isBankOwner && (
+            <div className="App__admin-panel">
+              {currentBankName ?
+              <h4>Bank Name: {currentBankName}</h4> :
+              <h4>You havent set any bank name yet</h4>}
+              <form>
+                <input
+                  type="text"
+                  name="bankName"
+                  value={inputValue.bankName}
+                  onChange={handleInputChange}
+                />
+                <button
+                  onClick={setBankNameHandler}>Set/change bank name</button>
+              </form>
+            </div>
+            
+          )}
         </div>
-      </header>
     </div>
   )
 }
